@@ -7,6 +7,7 @@ import Observers from './observers.js';
 import ApiManager from './apiManager.js';
 import TemplateManager from './templateManager.js';
 import { debugLog, canvasPosToLatLng, getDebugLoggingEnabled, saveDebugLoggingEnabled } from './utils.js';
+import { buildOverlayMain as buildOverlayMainUI } from './uiBuilder.js';
 
 // Ensure debugLog is globally available to prevent ReferenceError - set it immediately
 if (typeof window !== 'undefined') {
@@ -1233,7 +1234,15 @@ migrateAndValidateStorage()
   .then(() => loadTemplates())
   .catch(error => console.error('Template loading failed:', error));
 
-buildOverlayMain(); // Builds the main overlay
+buildOverlayMainUI({
+  templateManager,
+  apiManager,
+  version,
+  updateMiniTracker,
+  deleteAllTemplates,
+  deleteSelectedTemplate,
+  buildColorFilterOverlay
+}); // Builds the main overlay using UI Builder (includes Area Capture and Gallery)
 
 // Pause tiles functionality is now integrated into the main UI through buildOverlayMain()
 

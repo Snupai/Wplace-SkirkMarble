@@ -106,6 +106,21 @@ export async function buildOverlayMain({ templateManager, apiManager, version, u
   let yOffset = 0;
 
   const header = overlayMain.element.querySelector('div[style*="cursor: move"]');
+  const computeOverlayXY = () => {
+    let x = currentX ?? 0;
+    let y = currentY ?? 0;
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
+      const tf = window.getComputedStyle(overlayMain.element).transform;
+      if (tf && tf !== 'none') {
+        const m = new DOMMatrix(tf);
+        x = m.m41; y = m.m42;
+      } else {
+        const r = overlayMain.element.getBoundingClientRect();
+        x = r.left; y = r.top;
+      }
+    }
+    return { x, y };
+  };
   
   header.addEventListener('mousedown', (e) => {
     if (e.target.id === 'bm-minimize-btn') return;
@@ -131,18 +146,7 @@ export async function buildOverlayMain({ templateManager, apiManager, version, u
       isDragging = false;
       header.style.cursor = 'move';
       try {
-        let x = currentX ?? 0;
-        let y = currentY ?? 0;
-        if (!Number.isFinite(x) || !Number.isFinite(y)) {
-          const tf = window.getComputedStyle(overlayMain.element).transform;
-          if (tf && tf !== 'none') {
-            const m = new DOMMatrix(tf);
-            x = m.m41; y = m.m42;
-          } else {
-            const r = overlayMain.element.getBoundingClientRect();
-            x = r.left; y = r.top;
-          }
-        }
+        const { x, y } = computeOverlayXY();
         const st = getOverlayState() || {};
         saveOverlayState({ ...st, minimized: !!st.minimized, x, y });
       } catch {}
@@ -166,18 +170,21 @@ export async function buildOverlayMain({ templateManager, apiManager, version, u
     }
     isMinimized = !isMinimized;
     try {
-      let x = currentX ?? 0;
-      let y = currentY ?? 0;
-      if (!Number.isFinite(x) || !Number.isFinite(y)) {
-        const tf = window.getComputedStyle(overlayMain.element).transform;
-        if (tf && tf !== 'none') {
-          const m = new DOMMatrix(tf);
-          x = m.m41; y = m.m42;
-        } else {
-          const r = overlayMain.element.getBoundingClientRect();
-          x = r.left; y = r.top;
-        }
-      }
+      const { x, y } = computeOverlayXY();
+      saveOverlayState({ minimized: isMinimized, x, y });
+    } catch {}
+  });
+
+  // Persist current state on initialization and before unload to ensure durability
+  try {
+    const { x, y } = computeOverlayXY();
+    const st = getOverlayState() || {};
+    saveOverlayState({ ...st, minimized: !!st.minimized || isMinimized, x, y });
+  } catch {}
+
+  window.addEventListener('beforeunload', () => {
+    try {
+      const { x, y } = computeOverlayXY();
       saveOverlayState({ minimized: isMinimized, x, y });
     } catch {}
   });
