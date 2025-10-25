@@ -4222,6 +4222,36 @@ function buildOverlayMain() {
           .addInput({'type': 'number', 'id': 'bm-input-ty', 'placeholder': 'T1 Y', 'min': 0, 'max': 2047, 'step': 1, 'required': true}).buildElement()
           .addInput({'type': 'number', 'id': 'bm-input-px', 'placeholder': 'Px X', 'min': 0, 'max': 2047, 'step': 1, 'required': true}).buildElement()
           .addInput({'type': 'number', 'id': 'bm-input-py', 'placeholder': 'Px Y', 'min': 0, 'max': 2047, 'step': 1, 'required': true}).buildElement()
+          .addButton({'id': 'bm-button-paste-coords', 'className': 'bm-help', 'title': 'Paste coordinates from clipboard', 'style': 'margin-left: 6px;'},
+            (instance, button) => {
+              button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path fill="white" d="M6 2h8a2 2 0 0 1 2 2v2h-2V4H6v2H4V4a2 2 0 0 1 2-2zm-2 6h12v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8zm3 3v2h6v-2H7z"/></svg>';
+              button.onclick = async () => {
+                try {
+                  let text = '';
+                  try { text = await navigator.clipboard.readText(); } catch (_) {}
+                  if (!text) { instance.handleDisplayError('No clipboard text found.'); return; }
+                  const labeled = /Tl\s*X:\s*(-?\d+)[^\d-]+Tl\s*Y:\s*(-?\d+)[^\d-]+Px\s*X:\s*(-?\d+)[^\d-]+Px\s*Y:\s*(-?\d+)/i.exec(text);
+                  let nums = null;
+                  if (labeled) {
+                    nums = [labeled[1], labeled[2], labeled[3], labeled[4]].map(n => Number(n));
+                  } else {
+                    const found = (text.match(/-?\d+/g) || []).map(Number).filter(Number.isFinite);
+                    if (found.length >= 4) nums = found.slice(0,4);
+                  }
+                  if (!nums) { instance.handleDisplayError('Clipboard text missing 4 coordinates.'); return; }
+                  const [tx, ty, px, py] = nums;
+                  instance.updateInnerHTML('bm-input-tx', String(tx));
+                  instance.updateInnerHTML('bm-input-ty', String(ty));
+                  instance.updateInnerHTML('bm-input-px', String(px));
+                  instance.updateInnerHTML('bm-input-py', String(py));
+                  try { Settings.saveCoords?.({ tx, ty, px, py }); } catch (_) {}
+                  instance.handleDisplayStatus('Pasted coordinates from clipboard');
+                } catch (e) {
+                  instance.handleDisplayError(`Failed to paste coordinates: ${e?.message || e}`);
+                }
+              };
+            }
+          ).buildElement()
         .buildElement()
       .buildElement()
       
@@ -4243,6 +4273,24 @@ function buildOverlayMain() {
           .addDiv({
             innerHTML: '<input type="text" id="bm-color-search" placeholder="🔍 Search colors..." style="flex: 1; padding: 4px 8px; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: white; min-width: 0; max-width: 120px;" autocomplete="off">',
           }).buildElement()
+        .addButton({'id': 'bm-button-gallery', 'className': 'bm-help', 'innerHTML': '🖼️', 'title': 'Open Gallery (pxl-wplace)'},
+          (instance, button) => {
+            button.addEventListener('click', () => {
+              try {
+                const GALLERY_URL = 'https://pxl-wplace.snupai.dev/gallery?from=bm';
+                const win = window.open(GALLERY_URL, 'bm-gallery');
+                setTimeout(() => {
+                  try {
+                    win && win.postMessage({ source: 'blue-marble', type: 'ready' }, 'https://pxl-wplace.snupai.dev');
+                    instance.handleDisplayStatus('Opened gallery; waiting for connection...');
+                  } catch (_) {}
+                }, 500);
+              } catch (e) {
+                instance.handleDisplayError('Failed to open gallery window');
+              }
+            });
+          }
+        ).buildElement()
           .addDiv({
             innerHTML: '<select id="bm-color-sort" style="padding: 4px 6px; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: white; flex: 1; min-width: 80px;"><option value="default" style="background: #2a2a2a; color: white;">Default</option><option value="premium" style="background: #2a2a2a; color: white;">Premium 💧</option><option value="most-wrong" style="background: #2a2a2a; color: white;">Most Wrong</option><option value="most-missing" style="background: #2a2a2a; color: white;">Most Missing</option><option value="less-missing" style="background: #2a2a2a; color: white;">Less Missing</option><option value="most-painted" style="background: #2a2a2a; color: white;">Most Painted</option><option value="less-painted" style="background: #2a2a2a; color: white;">Less Painted</option><option value="enhanced" style="background: #2a2a2a; color: white;">Enhanced Only</option><option value="name-asc" style="background: #2a2a2a; color: white;">Name A-Z</option><option value="name-desc" style="background: #2a2a2a; color: white;">Name Z-A</option></select>',
           }).buildElement()
@@ -4286,7 +4334,75 @@ function buildOverlayMain() {
         }).buildElement()
       .buildElement()
       .addDiv({'id': 'bm-contain-buttons-template'})
-        .addInputFile({'id': 'bm-input-file-template', 'textContent': 'Upload Template', 'accept': 'image/png, image/jpeg, image/webp, image/bmp, image/gif'})
+        .addInputFile({'id': 'bm-input-file-template', 'textContent': 'Upload Template', 'accept': 'image/png, image/jpeg, image/webp, image/bmp, image/gif'},
+          (instance, container, input, uploadButton) => {
+            try {
+              // Arrange layout
+              container.style.display = 'flex';
+              container.style.alignItems = 'center';
+              container.style.gap = '6px';
+              uploadButton.style.flex = '1 1 auto';
+              uploadButton.style.minWidth = '0';
+
+              // Persist file selection
+              input.addEventListener('change', () => {
+                try { Settings.saveLastTemplateFile?.(input.files[0]); } catch (_) {}
+              });
+
+              // Paste image from clipboard button
+              const pasteBtn = document.createElement('button');
+              pasteBtn.id = 'bm-button-paste-image';
+              pasteBtn.className = 'bm-help';
+              pasteBtn.title = 'Paste image template from clipboard';
+              pasteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path fill="white" d="M6 2h8a2 2 0 0 1 2 2v2h-2V4H6v2H4V4a2 2 0 0 1 2-2zm-2 6h12v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8zm3 3v2h6v-2H7z"/></svg>';
+              pasteBtn.addEventListener('click', async () => {
+                try {
+                  // Require coords
+                  const ix = document.querySelector('#bm-input-tx');
+                  const iy = document.querySelector('#bm-input-ty');
+                  const ipx = document.querySelector('#bm-input-px');
+                  const ipy = document.querySelector('#bm-input-py');
+                  if (!ix?.value || !iy?.value || !ipx?.value || !ipy?.value) { instance.handleDisplayError('Fill coordinates first (use Detect or clipboard).'); return; }
+                  const tx = Number(ix.value), ty = Number(iy.value), px = Number(ipx.value), py = Number(ipy.value);
+
+                  // Read image blob from clipboard
+                  let blob = null; let fileName = 'Clipboard.png';
+                  try {
+                    const items = await navigator.clipboard.read();
+                    for (const item of items) {
+                      for (const type of item.types) {
+                        if (type.startsWith('image/')) {
+                          blob = await item.getType(type);
+                          try { const ext = type.split('/')[1] || 'png'; fileName = `Clipboard.${ext}`; } catch (_) {}
+                          break;
+                        }
+                      }
+                      if (blob) break;
+                    }
+                  } catch (_) {}
+                  if (!blob) { instance.handleDisplayError('No image found in clipboard.'); return; }
+
+                  // Create template
+                  templateManager.createTemplate(blob, fileName.replace(/\.[^/.]+$/, ''), [tx, ty, px, py]);
+
+                  // Put blob into file input for reuse
+                  try {
+                    const dt = new DataTransfer();
+                    dt.items.add(new File([blob], fileName, { type: blob.type }));
+                    input.files = dt.files;
+                    input.dispatchEvent(new Event('change'));
+                  } catch (_) {}
+
+                  instance.handleDisplayStatus('Pasted template from clipboard!');
+                } catch (e) {
+                  instance.handleDisplayError(`Failed to paste image template: ${e?.message || e}`);
+                }
+              });
+
+              container.appendChild(pasteBtn);
+            } catch (_) {}
+          }
+        )
         .addButton({'id': 'bm-button-create', innerHTML: icons.createIcon + 'Create'}, (instance, button) => {
           button.onclick = () => {
             const input = document.querySelector('#bm-input-file-template');

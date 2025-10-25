@@ -77,5 +77,9 @@
   "bm-cStyle": "bm-1b",
   "bm-search": "bm-1c",
   "bm-help": "bm-1d",
-  "bm-name": "bm-1e"
+  "bm-name": "bm-1e",
+  "bm-button-paste-coords": "bm-1E",
+  "bm-button-paste-image": "bm-1J",
+  "bm-button-gallery": "bm-20",
+  "bm-gallery": "bm-2v"
 }
