@@ -4215,13 +4215,7 @@ function buildOverlayMain() {
               }
             }
           ).buildElement()
-        .buildElement()
-        .addDiv({ id: 'bm-contain-inputs'})
-          .addP({ textContent: 'Tile: '}).buildElement()
-          .addInput({'type': 'number', 'id': 'bm-input-tx', 'placeholder': 'T1 X', 'min': 0, 'max': 2047, 'step': 1, 'required': true}).buildElement()
-          .addInput({'type': 'number', 'id': 'bm-input-ty', 'placeholder': 'T1 Y', 'min': 0, 'max': 2047, 'step': 1, 'required': true}).buildElement()
-          .addInput({'type': 'number', 'id': 'bm-input-px', 'placeholder': 'Px X', 'min': 0, 'max': 2047, 'step': 1, 'required': true}).buildElement()
-          .addInput({'type': 'number', 'id': 'bm-input-py', 'placeholder': 'Px Y', 'min': 0, 'max': 2047, 'step': 1, 'required': true}).buildElement()
+          // Paste coordinates button (moved next to Detect)
           .addButton({'id': 'bm-button-paste-coords', 'className': 'bm-help', 'title': 'Paste coordinates from clipboard', 'style': 'margin-left: 6px;'},
             (instance, button) => {
               button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path fill="white" d="M6 2h8a2 2 0 0 1 2 2v2h-2V4H6v2H4V4a2 2 0 0 1 2-2zm-2 6h12v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8zm3 3v2h6v-2H7z"/></svg>';
@@ -4252,6 +4246,13 @@ function buildOverlayMain() {
               };
             }
           ).buildElement()
+        .buildElement()
+        .addDiv({ id: 'bm-contain-inputs'})
+          .addP({ textContent: 'Tile: '}).buildElement()
+          .addInput({'type': 'number', 'id': 'bm-input-tx', 'placeholder': 'T1 X', 'min': 0, 'max': 2047, 'step': 1, 'required': true}).buildElement()
+          .addInput({'type': 'number', 'id': 'bm-input-ty', 'placeholder': 'T1 Y', 'min': 0, 'max': 2047, 'step': 1, 'required': true}).buildElement()
+          .addInput({'type': 'number', 'id': 'bm-input-px', 'placeholder': 'Px X', 'min': 0, 'max': 2047, 'step': 1, 'required': true}).buildElement()
+          .addInput({'type': 'number', 'id': 'bm-input-py', 'placeholder': 'Px Y', 'min': 0, 'max': 2047, 'step': 1, 'required': true}).buildElement()
         .buildElement()
       .buildElement()
       
@@ -4343,6 +4344,11 @@ function buildOverlayMain() {
               container.style.gap = '6px';
               uploadButton.style.flex = '1 1 auto';
               uploadButton.style.minWidth = '0';
+              // Make Upload button shorter/compact
+              uploadButton.style.height = '36px';
+              uploadButton.style.padding = '0 10px';
+              uploadButton.style.borderRadius = '10px';
+              uploadButton.style.fontSize = '13px';
 
               // Persist file selection
               input.addEventListener('change', () => {
@@ -4355,6 +4361,15 @@ function buildOverlayMain() {
               pasteBtn.className = 'bm-help';
               pasteBtn.title = 'Paste image template from clipboard';
               pasteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path fill="white" d="M6 2h8a2 2 0 0 1 2 2v2h-2V4H6v2H4V4a2 2 0 0 1 2-2zm-2 6h12v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8zm3 3v2h6v-2H7z"/></svg>';
+              // Small square button to the right
+              pasteBtn.style.width = '36px';
+              pasteBtn.style.height = '36px';
+              pasteBtn.style.display = 'inline-flex';
+              pasteBtn.style.alignItems = 'center';
+              pasteBtn.style.justifyContent = 'center';
+              pasteBtn.style.padding = '0';
+              pasteBtn.style.borderRadius = '10px';
+              pasteBtn.style.minWidth = '36px';
               pasteBtn.addEventListener('click', async () => {
                 try {
                   // Require coords
