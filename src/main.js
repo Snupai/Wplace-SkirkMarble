@@ -4197,55 +4197,58 @@ function buildOverlayMain() {
       // .addButtonHelp({'title': 'Controls the website as if it were possessed.'}).buildElement()
       // .addBr().buildElement()
       .addDiv({'id': 'bm-contain-coords'})
-        .addDiv({ id: 'bm-coords-title' })
+        .addDiv({ id: 'bm-coords-title', style: 'display:flex; align-items:center; gap:6px;' })
           .addDiv({ innerHTML: icons.pinIcon }).buildElement()
           .addP({ innerHTML: 'Coordinates:' }).buildElement()
-          .addButton({'id': 'bm-button-coords', 'innerHTML': icons.pointerIcon + 'Detect', title: 'Set the location to the pixel you\'ve selected'},
-            (instance, button) => {
-              button.onclick = () => {
-                const coords = instance.apiManager?.coordsTilePixel; // Retrieves the coords from the API manager
-                if (!coords?.[0]) {
-                  instance.handleDisplayError('Coordinates are malformed! Did you try clicking on the canvas first?');
-                  return;
-                }
-                instance.updateInnerHTML('bm-input-tx', coords?.[0] || '');
-                instance.updateInnerHTML('bm-input-ty', coords?.[1] || '');
-                instance.updateInnerHTML('bm-input-px', coords?.[2] || '');
-                instance.updateInnerHTML('bm-input-py', coords?.[3] || '');
-              }
-            }
-          ).buildElement()
-          // Paste coordinates button (moved next to Detect)
-          .addButton({'id': 'bm-button-paste-coords', 'className': 'bm-help', 'title': 'Paste coordinates from clipboard', 'style': 'margin-left: 6px;'},
-            (instance, button) => {
-              button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path fill="white" d="M6 2h8a2 2 0 0 1 2 2v2h-2V4H6v2H4V4a2 2 0 0 1 2-2zm-2 6h12v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8zm3 3v2h6v-2H7z"/></svg>';
-              button.onclick = async () => {
-                try {
-                  let text = '';
-                  try { text = await navigator.clipboard.readText(); } catch (_) {}
-                  if (!text) { instance.handleDisplayError('No clipboard text found.'); return; }
-                  const labeled = /Tl\s*X:\s*(-?\d+)[^\d-]+Tl\s*Y:\s*(-?\d+)[^\d-]+Px\s*X:\s*(-?\d+)[^\d-]+Px\s*Y:\s*(-?\d+)/i.exec(text);
-                  let nums = null;
-                  if (labeled) {
-                    nums = [labeled[1], labeled[2], labeled[3], labeled[4]].map(n => Number(n));
-                  } else {
-                    const found = (text.match(/-?\d+/g) || []).map(Number).filter(Number.isFinite);
-                    if (found.length >= 4) nums = found.slice(0,4);
+          // Right-aligned group for Detect + Paste buttons
+          .addDiv({ style: 'margin-left:auto; display:flex; align-items:center; gap:6px;' })
+            .addButton({'id': 'bm-button-coords', 'innerHTML': icons.pointerIcon + 'Detect', title: 'Set the location to the pixel you\'ve selected'},
+              (instance, button) => {
+                button.onclick = () => {
+                  const coords = instance.apiManager?.coordsTilePixel; // Retrieves the coords from the API manager
+                  if (!coords?.[0]) {
+                    instance.handleDisplayError('Coordinates are malformed! Did you try clicking on the canvas first?');
+                    return;
                   }
-                  if (!nums) { instance.handleDisplayError('Clipboard text missing 4 coordinates.'); return; }
-                  const [tx, ty, px, py] = nums;
-                  instance.updateInnerHTML('bm-input-tx', String(tx));
-                  instance.updateInnerHTML('bm-input-ty', String(ty));
-                  instance.updateInnerHTML('bm-input-px', String(px));
-                  instance.updateInnerHTML('bm-input-py', String(py));
-                  try { Settings.saveCoords?.({ tx, ty, px, py }); } catch (_) {}
-                  instance.handleDisplayStatus('Pasted coordinates from clipboard');
-                } catch (e) {
-                  instance.handleDisplayError(`Failed to paste coordinates: ${e?.message || e}`);
+                  instance.updateInnerHTML('bm-input-tx', coords?.[0] || '');
+                  instance.updateInnerHTML('bm-input-ty', coords?.[1] || '');
+                  instance.updateInnerHTML('bm-input-px', coords?.[2] || '');
+                  instance.updateInnerHTML('bm-input-py', coords?.[3] || '');
                 }
-              };
-            }
-          ).buildElement()
+              }
+            ).buildElement()
+            // Paste coordinates button (immediately right of Detect)
+            .addButton({'id': 'bm-button-paste-coords', 'className': 'bm-help', 'title': 'Paste coordinates from clipboard'},
+              (instance, button) => {
+                button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path fill="white" d="M6 2h8a2 2 0 0 1 2 2v2h-2V4H6v2H4V4a2 2 0 0 1 2-2zm-2 6h12v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8zm3 3v2h6v-2H7z"/></svg>';
+                button.onclick = async () => {
+                  try {
+                    let text = '';
+                    try { text = await navigator.clipboard.readText(); } catch (_) {}
+                    if (!text) { instance.handleDisplayError('No clipboard text found.'); return; }
+                    const labeled = /Tl\s*X:\s*(-?\d+)[^\d-]+Tl\s*Y:\s*(-?\d+)[^\d-]+Px\s*X:\s*(-?\d+)[^\d-]+Px\s*Y:\s*(-?\d+)/i.exec(text);
+                    let nums = null;
+                    if (labeled) {
+                      nums = [labeled[1], labeled[2], labeled[3], labeled[4]].map(n => Number(n));
+                    } else {
+                      const found = (text.match(/-?\d+/g) || []).map(Number).filter(Number.isFinite);
+                      if (found.length >= 4) nums = found.slice(0,4);
+                    }
+                    if (!nums) { instance.handleDisplayError('Clipboard text missing 4 coordinates.'); return; }
+                    const [tx, ty, px, py] = nums;
+                    instance.updateInnerHTML('bm-input-tx', String(tx));
+                    instance.updateInnerHTML('bm-input-ty', String(ty));
+                    instance.updateInnerHTML('bm-input-px', String(px));
+                    instance.updateInnerHTML('bm-input-py', String(py));
+                    try { Settings.saveCoords?.({ tx, ty, px, py }); } catch (_) {}
+                    instance.handleDisplayStatus('Pasted coordinates from clipboard');
+                  } catch (e) {
+                    instance.handleDisplayError(`Failed to paste coordinates: ${e?.message || e}`);
+                  }
+                };
+              }
+            ).buildElement()
+          .buildElement()
         .buildElement()
         .addDiv({ id: 'bm-contain-inputs'})
           .addP({ textContent: 'Tile: '}).buildElement()
@@ -13004,7 +13007,7 @@ function createSearchWindow() {
 <div class="drag-handle"></div>
 <div class="hdr">
   <h3>
-    <img class="skirk-icon" src="https://raw.githubusercontent.com/Seris0/Wplace-SkirkMarble/main/dist/assets/Favicon.png" alt="Blue Marble" style="width:42px;height:42px;">
+    <img class="skirk-icon" src="https://raw.githubusercontent.com/Snupai/Wplace-SkirkMarble/main/dist/assets/Favicon.png" alt="Blue Marble" style="width:42px;height:42px;">
     Location Search
   </h3>
   <div class="actions">
