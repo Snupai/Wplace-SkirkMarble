@@ -2704,8 +2704,8 @@ export default class TemplateManager {
    * The screenshot shows the current board (not overlay) for the area from the template's top-left pixel
    * to its bottom-right pixel, snapped to tile boundaries as needed.
    * @param {string} tileServerBase - Base URL to the tile server (ending with /tiles)
-   * @param {[number, number, number, number]} templateCoords - [tileX, tileY, pixelX, pixelY]
-   * @param {[number, number]} sizePx - [width, height] in template pixels to capture
+   * @param {number[]} templateCoords - [tileX, tileY, pixelX, pixelY] in this order
+   * @param {number[]} sizePx - [width, height] in template pixels to capture
    * @returns {Promise<Blob>} PNG blob of the composed screenshot
    */
   async buildTemplateAreaScreenshot(tileServerBase, templateCoords, sizePx) {
@@ -2877,7 +2877,8 @@ export default class TemplateManager {
 
   /** Merge-import a BlueMarble JSON object (keeps coords and base64; allocates non-conflicting keys)
    * @param {Object} json
-   * @param {{merge?: boolean}} options
+   * @param {Object} [options] - Options object
+   * @param {boolean} [options.merge=true] - If true, merge into existing set
    */
   async importFromObject(json, { merge = true } = {}) {
     if (!json?.templates || typeof json.templates !== 'object') return;
