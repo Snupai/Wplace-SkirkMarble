@@ -4202,25 +4202,8 @@ function buildOverlayMain() {
           .addP({ innerHTML: 'Coordinates:' }).buildElement()
           // Right-aligned group for Detect + Paste buttons
           .addDiv({ style: 'margin-left:auto; display:flex; align-items:center; gap:6px;' })
-            .addButton({'id': 'bm-button-coords', 'innerHTML': icons.pointerIcon + 'Detect', title: 'Set the location to the pixel you\'ve selected'},
+            .addButton({'id': 'bm-button-paste-coords', 'innerHTML': icons.pasteIcon, 'title': 'Paste coordinates from clipboard'},
               (instance, button) => {
-                button.onclick = () => {
-                  const coords = instance.apiManager?.coordsTilePixel; // Retrieves the coords from the API manager
-                  if (!coords?.[0]) {
-                    instance.handleDisplayError('Coordinates are malformed! Did you try clicking on the canvas first?');
-                    return;
-                  }
-                  instance.updateInnerHTML('bm-input-tx', coords?.[0] || '');
-                  instance.updateInnerHTML('bm-input-ty', coords?.[1] || '');
-                  instance.updateInnerHTML('bm-input-px', coords?.[2] || '');
-                  instance.updateInnerHTML('bm-input-py', coords?.[3] || '');
-                }
-              }
-            ).buildElement()
-            // Paste coordinates button (immediately right of Detect)
-            .addButton({'id': 'bm-button-paste-coords', 'className': 'bm-help', 'title': 'Paste coordinates from clipboard'},
-              (instance, button) => {
-                button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path fill="white" d="M6 2h8a2 2 0 0 1 2 2v2h-2V4H6v2H4V4a2 2 0 0 1 2-2zm-2 6h12v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8zm3 3v2h6v-2H7z"/></svg>';
                 button.onclick = async () => {
                   try {
                     let text = '';
@@ -4246,6 +4229,21 @@ function buildOverlayMain() {
                     instance.handleDisplayError(`Failed to paste coordinates: ${e?.message || e}`);
                   }
                 };
+              }
+            ).buildElement()
+            .addButton({'id': 'bm-button-coords', 'innerHTML': icons.pointerIcon + 'Detect', title: 'Set the location to the pixel you\'ve selected'},
+              (instance, button) => {
+                button.onclick = () => {
+                  const coords = instance.apiManager?.coordsTilePixel; // Retrieves the coords from the API manager
+                  if (!coords?.[0]) {
+                    instance.handleDisplayError('Coordinates are malformed! Did you try clicking on the canvas first?');
+                    return;
+                  }
+                  instance.updateInnerHTML('bm-input-tx', coords?.[0] || '');
+                  instance.updateInnerHTML('bm-input-ty', coords?.[1] || '');
+                  instance.updateInnerHTML('bm-input-px', coords?.[2] || '');
+                  instance.updateInnerHTML('bm-input-py', coords?.[3] || '');
+                }
               }
             ).buildElement()
           .buildElement()
