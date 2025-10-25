@@ -3802,6 +3802,21 @@ function showTemplateManageDialog(instance) {
 function buildOverlayMain() {
   let isMinimized = false; // Overlay state tracker (false = maximized, true = minimized)
   
+  // Helper to compute current overlay transform x/y
+  const computeOverlayXY = () => {
+    try {
+      const el = document.getElementById('bm-overlay');
+      if (!el) return { x: 0, y: 0 };
+      const tf = window.getComputedStyle(el).transform;
+      if (tf && tf !== 'none') {
+        const m = new DOMMatrix(tf);
+        return { x: m.m41, y: m.m42 };
+      }
+      const r = el.getBoundingClientRect();
+      return { x: r.left, y: r.top };
+    } catch (_) { return { x: 0, y: 0 }; }
+  };
+  
   overlayMain.addDiv({'id': 'bm-overlay', 'style': 'top: 10px; right: 75px;'})
     .addDiv({'id': 'bm-contain-header'})
       .addDiv({'id': 'bm-bar-drag'}).buildElement()
@@ -4104,6 +4119,12 @@ function buildOverlayMain() {
               'Blue Marble Icon - Maximized (Click to minimize)';
             
             // No status message needed - state change is visually obvious to users
+            // Persist minimized state and current position
+            try {
+              const { x, y } = computeOverlayXY();
+              const st = Settings.getOverlayState?.() || {};
+              Settings.saveOverlayState?.({ ...st, minimized: isMinimized, x, y });
+            } catch (_) {}
           });
         }
       ).buildElement()
@@ -4510,6 +4531,46 @@ function buildOverlayMain() {
       .buildElement()
     .buildElement()
   .buildOverlay(document.body);
+
+  // Restore overlay position and minimized state from storage
+  try {
+    const st = Settings.getOverlayState?.();
+    if (st && typeof st === 'object') {
+      const el = document.getElementById('bm-overlay');
+      if (el) {
+        if (Number.isFinite(st.x) && Number.isFinite(st.y)) {
+          el.style.transform = `translate(${st.x}px, ${st.y}px)`;
+          // Clear conflicting positional styles
+          el.style.left = '0px';
+          el.style.top = '0px';
+          el.style.right = '';
+        }
+        if (st.minimized === true) {
+          // Simulate a click to apply minimized UI without toggling twice
+          const img = document.querySelector('#bm-title-container img');
+          if (img) { img.click(); } else { isMinimized = true; }
+        }
+      }
+    }
+  } catch (_) {}
+
+  // Save position on mouseup (end of drag) and before unload
+  try {
+    document.addEventListener('mouseup', () => {
+      try {
+        const { x, y } = computeOverlayXY();
+        const st = Settings.getOverlayState?.() || {};
+        Settings.saveOverlayState?.({ ...st, minimized: !!st.minimized, x, y });
+      } catch (_) {}
+    });
+    window.addEventListener('beforeunload', () => {
+      try {
+        const { x, y } = computeOverlayXY();
+        const st = Settings.getOverlayState?.() || {};
+        Settings.saveOverlayState?.({ ...st, minimized: !!st.minimized, x, y });
+      } catch (_) {}
+    });
+  } catch (_) {}
 }
 
 function buildOverlayTabTemplate() {

@@ -6,19 +6,20 @@
 // @author       Snupai
 // @license      MPL-2.0
 // @homepageURL  https://github.com/Snupai/Wplace-SkirkMarble
-// @icon         https://raw.githubusercontent.com/Snupai/Wplace-SkirkMarble/a3165428ada9c64b3b7d88c0f1a6917ee81ec67e/dist/assets/Favicon.png
+// @icon         https://raw.githubusercontent.com/Snupai/Wplace-SkirkMarble/main/dist/assets/Favicon.png
 // @updateURL    https://raw.githubusercontent.com/Snupai/Wplace-SkirkMarble/main/dist/SkirkMarble.user.js
 // @downloadURL  https://raw.githubusercontent.com/Snupai/Wplace-SkirkMarble/main/dist/SkirkMarble.user.js
 // @match        *://*.wplace.live/*
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
 // @grant        GM.setValue
+// @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
 // @connect      nominatim.openstreetmap.org
 // @connect      wplace.live
 // @connect      wplace.lol
-// @resource     CSS-BM-File https://raw.githubusercontent.com/Snupai/Wplace-SkirkMarble/a3165428ada9c64b3b7d88c0f1a6917ee81ec67e/dist/SkirkMarble.user.css
+// @resource     CSS-BM-File https://raw.githubusercontent.com/Snupai/Wplace-SkirkMarble/main/dist/SkirkMarble.user.css
 // ==/UserScript==
 
 // Wplace  --> https://wplace.live
