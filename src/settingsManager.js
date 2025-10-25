@@ -580,6 +580,120 @@ export function getDragModeEnabled() {
   }
 }
 
+// ---------------- Overlay state persistence ----------------
+/** Load overlay state: { minimized: boolean, x: number, y: number } */
+export function getOverlayState() {
+  try {
+    // Prefer Tampermonkey
+    if (typeof GM_getValue !== 'undefined') {
+      const v = GM_getValue('bmOverlayState', null);
+      if (v !== null) return JSON.parse(v);
+    }
+    const ls = localStorage.getItem('bmOverlayState');
+    if (ls !== null) return JSON.parse(ls);
+  } catch {}
+  return { minimized: false };
+}
+
+/** Save overlay state */
+export function saveOverlayState(state) {
+  try {
+    const s = JSON.stringify(state || {});
+    if (typeof GM_setValue !== 'undefined') {
+      GM_setValue('bmOverlayState', s);
+    }
+    localStorage.setItem('bmOverlayState', s);
+  } catch (e) {
+    console.warn('Failed to save overlay state', e);
+  }
+}
+
+// ---------------- Coordinates persistence ----------------
+/** Load coordinate inputs: { tx, ty, px, py } */
+export function getCoords() {
+  try {
+    if (typeof GM_getValue !== 'undefined') {
+      const v = GM_getValue('bmCoords', null);
+      if (v !== null) return JSON.parse(v);
+    }
+    const ls = localStorage.getItem('bmCoords');
+    if (ls !== null) return JSON.parse(ls);
+  } catch {}
+  return {};
+}
+
+/** Merge-save coordinate inputs */
+export function saveCoords(partial) {
+  try {
+    const prev = getCoords();
+    const merged = { ...prev, ...partial };
+    const s = JSON.stringify(merged);
+    if (typeof GM_setValue !== 'undefined') {
+      GM_setValue('bmCoords', s);
+    }
+    localStorage.setItem('bmCoords', s);
+  } catch (e) {
+    console.warn('Failed to save coords', e);
+  }
+}
+
+// ---------------- Last template file persistence ----------------
+/** Save last template file as base64 payload */
+export async function saveLastTemplateFile(file) {
+  try {
+    if (!(file instanceof Blob)) return;
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result === 'string') {
+          const comma = result.indexOf(',');
+          resolve(comma >= 0 ? result.slice(comma + 1) : result);
+        } else {
+          resolve('');
+        }
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+    const payload = JSON.stringify({ name: file.name || 'Template', type: file.type || 'image/png', data: base64 });
+    if (typeof GM_setValue !== 'undefined') {
+      GM_setValue('bmLastTemplate', payload);
+    }
+    localStorage.setItem('bmLastTemplate', payload);
+  } catch (e) {
+    console.warn('Failed to save last template file', e);
+  }
+}
+
+/** Restore last template file into a file input by selector and dispatch change */
+export function restoreLastTemplateFile(inputSelector) {
+  try {
+    let raw = null;
+    if (typeof GM_getValue !== 'undefined') {
+      raw = GM_getValue('bmLastTemplate', null);
+    }
+    if (!raw) raw = localStorage.getItem('bmLastTemplate');
+    if (!raw) return false;
+    const { name, type, data } = JSON.parse(raw);
+    if (!data) return false;
+    const bytes = Uint8Array.from(atob(data), c => c.charCodeAt(0));
+    const blob = new Blob([bytes], { type: type || 'image/png' });
+    const file = new File([blob], name || 'Template', { type: type || 'image/png' });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    const input = document.querySelector(inputSelector);
+    if (input) {
+      input.files = dt.files;
+      input.dispatchEvent(new Event('change'));
+      return true;
+    }
+  } catch (e) {
+    console.warn('Failed to restore last template file', e);
+  }
+  return false;
+}
+
 /** Saves the drag mode setting to storage
  * @param {boolean} enabled - True for full overlay drag, false for drag bar only
  * @since 1.0.0
