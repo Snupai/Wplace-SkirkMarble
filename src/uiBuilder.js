@@ -4,6 +4,7 @@
  */
 
 import * as icons from './icons.js';
+import Overlay from './Overlay.js';
 import { getOverlayState, saveOverlayState, getCoords, saveCoords, saveLastTemplateFile, restoreLastTemplateFile, getTileRefreshPaused, saveTileRefreshPaused } from './settingsManager.js';
 // UI Builder utilities - currently minimal
 
@@ -21,7 +22,6 @@ import { getOverlayState, saveOverlayState, getCoords, saveCoords, saveLastTempl
  */
 export async function buildOverlayMain({ templateManager, apiManager, version, updateMiniTracker, deleteAllTemplates, deleteSelectedTemplate, buildColorFilterOverlay }) {
   let isMinimized = false;
-  const Overlay = (await import('./Overlay.js')).default;
 
   const overlayMain = new Overlay({
     'id': 'bm-overlay-main',
@@ -609,6 +609,18 @@ export async function buildOverlayMain({ templateManager, apiManager, version, u
         }
       } catch (_) {}
     });
+  } catch (_) {}
+
+  // Attach to DOM so the overlay is visible
+  try {
+    const mount = () => {
+      try { overlayMain.buildOverlay(document.body); } catch (_) {}
+    };
+    if (document.body) {
+      mount();
+    } else {
+      window.addEventListener('DOMContentLoaded', mount, { once: true });
+    }
   } catch (_) {}
   return overlayMain;
 }

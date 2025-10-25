@@ -1234,15 +1234,7 @@ migrateAndValidateStorage()
   .then(() => loadTemplates())
   .catch(error => console.error('Template loading failed:', error));
 
-buildOverlayMainUI({
-  templateManager,
-  apiManager,
-  version,
-  updateMiniTracker,
-  deleteAllTemplates,
-  deleteSelectedTemplate,
-  buildColorFilterOverlay
-}); // Builds the main overlay using UI Builder (includes Area Capture and Gallery)
+buildOverlayMain(); // Use legacy builder to ensure overlay renders with current Overlay API
 
 // Pause tiles functionality is now integrated into the main UI through buildOverlayMain()
 
