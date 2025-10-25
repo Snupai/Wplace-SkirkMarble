@@ -6,7 +6,7 @@
 // @author       Snupai
 // @license      MPL-2.0
 // @homepageURL  https://github.com/Snupai/Wplace-SkirkMarble
-// @icon         https://raw.githubusercontent.com/Snupai/Wplace-SkirkMarble/b834866389ab8541415e9c14f4e69626dbb786b0/dist/assets/Favicon.png
+// @icon         https://raw.githubusercontent.com/Seris0/Wplace-SkirkMarble/b834866389ab8541415e9c14f4e69626dbb786b0/dist/assets/Favicon.png
 // @updateURL    https://raw.githubusercontent.com/Snupai/Wplace-SkirkMarble/main/dist/SkirkMarble.user.js
 // @downloadURL  https://raw.githubusercontent.com/Snupai/Wplace-SkirkMarble/main/dist/SkirkMarble.user.js
 // @match        *://*.wplace.live/*
@@ -18,7 +18,7 @@
 // @connect      nominatim.openstreetmap.org
 // @connect      wplace.live
 // @connect      wplace.lol
-// @resource     CSS-BM-File https://raw.githubusercontent.com/Snupai/Wplace-SkirkMarble/b834866389ab8541415e9c14f4e69626dbb786b0/dist/SkirkMarble.user.css
+// @resource     CSS-BM-File https://raw.githubusercontent.com/Seris0/Wplace-SkirkMarble/b834866389ab8541415e9c14f4e69626dbb786b0/dist/SkirkMarble.user.css
 // ==/UserScript==
 
 // Wplace  --> https://wplace.live
