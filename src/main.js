@@ -4659,7 +4659,7 @@ function buildOverlayMain() {
           }).buildElement()
         .buildElement()
         .addDiv({'style': 'position: absolute; left: 0; bottom: 2px; text-align: left; padding: 0; pointer-events: auto; user-select: text; line-height: 12px;'}).
-        addSmall({'textContent': `Made by SwingTheVine | Fork Seris0 | v${version}`, 'style': 'color: #94a3b8; font-size: 0.74em; opacity: 0.85;'}).buildElement()        .buildElement()
+        addSmall({'textContent': `Made by SwingTheVine | Fork Seris0 | Fork Snupai | v${version}`, 'style': 'color: #94a3b8; font-size: 0.74em; opacity: 0.85;'}).buildElement()        .buildElement()
       .buildElement()
     .buildElement()
   .buildOverlay(document.body);
