@@ -33,7 +33,7 @@ export const errorMapIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" 
 // Edit icon for rename
 export const pencilIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7 21l-4 1 1-4L17 3z"></path></svg>`;
 
-export const pasteIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path fill="white" d="M6 2h8a2 2 0 0 1 2 2v2h-2V4H6v2H4V4a2 2 0 0 1 2-2zm-2 6h12v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8zm3 3v2h6v-2H7z"/></svg>`;
+export const pasteIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path fill="white" d="M6 2h8a2 2 0 0 1 2 2v2h-2V4H6v2H4V4a2 2 0 0 1 2-2zm-2 6h12v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8zm3 3v2h6v-2H7z"/></svg>`;
 
 // Aliases required by uiBuilder.js
 export const importIcon = uploadIcon;
